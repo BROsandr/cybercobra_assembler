@@ -271,29 +271,27 @@ namespace {
   }
 }
 
-Decoder::Decoder() {
-  using enum Concrete_instruction;
-
-  str_instr_mapping["add"      ] = instr_add      ;
-  str_instr_mapping["sub"      ] = instr_sub      ;
-  str_instr_mapping["xor"      ] = instr_xor      ;
-  str_instr_mapping["or"       ] = instr_or       ;
-  str_instr_mapping["and"      ] = instr_and      ;
-  str_instr_mapping["sra"      ] = instr_sra      ;
-  str_instr_mapping["sll"      ] = instr_sll      ;
-  str_instr_mapping["srl"      ] = instr_srl      ;
-  str_instr_mapping["blt"      ] = instr_blt      ;
-  str_instr_mapping["bltu"     ] = instr_bltu     ;
-  str_instr_mapping["bge"      ] = instr_bge      ;
-  str_instr_mapping["bgeu"     ] = instr_bgeu     ;
-  str_instr_mapping["beq"      ] = instr_beq      ;
-  str_instr_mapping["bne"      ] = instr_bne      ;
-  str_instr_mapping["slts"     ] = instr_slts     ;
-  str_instr_mapping["sltu"     ] = instr_sltu     ;
-  str_instr_mapping["const"    ] = instr_const    ;
-  str_instr_mapping["periphery"] = instr_periphery;
-  str_instr_mapping["j"        ] = instr_jump     ;
-}
+const std::map<std::string, Decoder::Concrete_instruction> Decoder::str_instr_mapping{
+  {"add"      , Decoder::Concrete_instruction::instr_add      },
+  {"sub"      , Decoder::Concrete_instruction::instr_sub      },
+  {"xor"      , Decoder::Concrete_instruction::instr_xor      },
+  {"or"       , Decoder::Concrete_instruction::instr_or       },
+  {"and"      , Decoder::Concrete_instruction::instr_and      },
+  {"sra"      , Decoder::Concrete_instruction::instr_sra      },
+  {"sll"      , Decoder::Concrete_instruction::instr_sll      },
+  {"srl"      , Decoder::Concrete_instruction::instr_srl      },
+  {"blt"      , Decoder::Concrete_instruction::instr_blt      },
+  {"bltu"     , Decoder::Concrete_instruction::instr_bltu     },
+  {"bge"      , Decoder::Concrete_instruction::instr_bge      },
+  {"bgeu"     , Decoder::Concrete_instruction::instr_bgeu     },
+  {"beq"      , Decoder::Concrete_instruction::instr_beq      },
+  {"bne"      , Decoder::Concrete_instruction::instr_bne      },
+  {"slts"     , Decoder::Concrete_instruction::instr_slts     },
+  {"sltu"     , Decoder::Concrete_instruction::instr_sltu     },
+  {"const"    , Decoder::Concrete_instruction::instr_const    },
+  {"periphery", Decoder::Concrete_instruction::instr_periphery},
+  {"j"        , Decoder::Concrete_instruction::instr_jump     },
+};
 
 Decoder::Concrete_instruction Decoder::decode_concrete_instruction(std::istream &line) const {
 

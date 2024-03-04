@@ -51,11 +51,9 @@ class Decoder {
       Instruction_type     type       {};
     };
 
-    Decoder();
-
     Instruction_info decode(const std::string &line) const;
 
     private:
-      std::map<std::string, Concrete_instruction> str_instr_mapping;
+      static const std::map<std::string, Concrete_instruction> str_instr_mapping;
       Concrete_instruction decode_concrete_instruction(std::istream &line) const;
 };
