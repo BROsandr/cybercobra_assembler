@@ -441,5 +441,30 @@ TEST_CASE("Decoder decode", "[DECODE]") {
     REQUIRE(info.rs2         ==  0);
     REQUIRE(info.imm         == 19);
   }
+
+  SECTION("periphery 20") {
+    const std::string line{"periphery 20"};
+    Decoder decoder{};
+    Decoder::Instruction_info info{decoder.decode(line)};
+    REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_periphery);
+    REQUIRE(info.type        == Decoder::Instruction_type::type_periphery);
+    REQUIRE(info.rd          == 20);
+  }
+
+  SECTION("const 3, 300") {
+    const std::string line{"const 3, 300"};
+    Decoder decoder{};
+    Decoder::Instruction_info info{decoder.decode(line)};
+    REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_const);
+    REQUIRE(info.type        == Decoder::Instruction_type::type_const);
+    REQUIRE(info.rd          == 3);
+    REQUIRE(info.imm         == 300);
+  }
+
+  SECTION("const 300, 300") {
+    const std::string line{"const 300, 300"};
+    Decoder decoder{};
+    REQUIRE_THROWS_AS(decoder.decode(line), Errors::Range_error);
+  }
 }
 #endif
