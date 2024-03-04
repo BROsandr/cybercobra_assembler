@@ -28,7 +28,8 @@ if (meson.get_compiler('cpp').get_id() in ['g++', 'gcc']) \
 endif
 
 src_unit_test_files = [
-    'decoder.cpp'
+    'decoder.cpp',
+    'encoder.cpp',
 ]
 src_dir = 'src'
 
@@ -42,7 +43,6 @@ foreach file : src_unit_test_files
 endforeach
 
 src_all_files = src_unit_test_files + [
-    'encoder.cpp',
     'main.cpp',
 ]
 

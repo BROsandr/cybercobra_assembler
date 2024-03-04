@@ -111,3 +111,40 @@ Uxlen Encoder::encode(Decoder::Instruction_info instr_info) {
       return 0xb1bab0ba;
   }
 }
+
+#ifdef UNIT_TEST
+#define CATCH_CONFIG_MAIN
+#include "catch2/catch_test_macros.hpp"
+
+TEST_CASE("Decoder encode computational", "[ENCODE_COMPUTATIONAL]") {
+
+  Encoder encoder{};
+
+  SECTION("add x1, x2, x3") {
+    const Uxlen instr{0b00010000000010000110000000000001};
+    Decoder::Instruction_info instr_info{};
+    instr_info.rd          = 1;
+    instr_info.instruction = Decoder::Concrete_instruction::instr_add;
+    instr_info.type        = Decoder::Instruction_type::type_computational;
+    instr_info.rs1         = 2;
+    instr_info.rs2         = 3;
+
+    REQUIRE(encoder.encode(instr_info) == instr);
+  }
+}
+
+TEST_CASE("Decoder encode computational", "[ENCODE_JUMP]") {
+
+  Encoder encoder{};
+
+  SECTION("j   20") {
+    const Uxlen instr{0b10000000000000000000001010000000};
+    Decoder::Instruction_info instr_info{};
+    instr_info.imm         = 20;
+    instr_info.instruction = Decoder::Concrete_instruction::instr_jump;
+    instr_info.type        = Decoder::Instruction_type::type_jump;
+
+    REQUIRE(encoder.encode(instr_info) == instr);
+  }
+}
+#endif
