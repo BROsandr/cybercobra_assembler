@@ -39,7 +39,6 @@ class Decoder {
       type_const        ,
       type_periphery    ,
       type_jump         ,
-      type_none         ,
     };
 
     struct Instruction_info {

@@ -130,7 +130,7 @@ namespace {
 
       default:
         assert(0 && "instr_number_ is not valid instruction");
-        return type_none;
+        return type_computational;
     }
 
     assert(0 && "Unknown instruction");
@@ -225,7 +225,6 @@ namespace {
     info.type = concrete2type(info.instruction);
     using enum Decoder::Instruction_type;
     switch (info.type) {
-      case type_none         :                                   break;
       case type_computational: decode_computational(info, line); break;
       case type_const        : decode_const        (info, line); break;
       case type_jump         : decode_jump         (info, line); break;
