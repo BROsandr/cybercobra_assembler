@@ -1,4 +1,5 @@
 project('cybercobra_compiler', 'cpp', default_options : ['cpp_std=c++23'])
+program_name = meson.project_name()
 
 incdir = [include_directories('inc')]
 catch_dep = dependency('catch2-with-main')
@@ -39,3 +40,16 @@ foreach file : src_unit_test_files
       dependencies : catch_dep)
   test(file, exe)
 endforeach
+
+src_all_files = src_unit_test_files + [
+    'encoder.cpp',
+    'main.cpp',
+]
+
+path_src = []
+
+foreach file : src_all_files
+  path_src += src_dir / file
+endforeach
+
+executable(program_name, sources : path_src, include_directories : incdir)
