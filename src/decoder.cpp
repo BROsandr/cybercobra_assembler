@@ -129,11 +129,11 @@ namespace {
       case instr_jump     : return type_jump;
 
       default:
-        assert("instr_number_ is not valid instruction");
+        assert(0 && "instr_number_ is not valid instruction");
         return type_none;
     }
 
-    assert("Unknown instruction");
+    assert(0 && "Unknown instruction");
   }
 
   void skip_sep(std::istream &line, char sep) {
