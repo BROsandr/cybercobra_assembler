@@ -42,10 +42,10 @@ class Decoder {
     };
 
     struct Instruction_info {
-      std::size_t          rs1        {};
-      std::size_t          rs2        {};
+      unsigned int         rs1        {};
+      unsigned int         rs2        {};
       Imm                  imm        {};
-      std::size_t          rd         {};
+      unsigned int         rd         {};
       Concrete_instruction instruction{};
       Instruction_type     type       {};
     };
