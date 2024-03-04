@@ -181,7 +181,7 @@ namespace {
     }
   }
 
-  constexpr void decode_jump(Decoder::Instruction_info &info, std::istream &line, char sep = ',') {
+  constexpr void decode_jump(Decoder::Instruction_info &info, std::istream &line) {
     line >> info.imm;
 
     if (!line) {
@@ -189,7 +189,7 @@ namespace {
     }
   }
 
-  constexpr void decode_periphery(Decoder::Instruction_info &info, std::istream &line, char sep = ',') {
+  constexpr void decode_periphery(Decoder::Instruction_info &info, std::istream &line) {
     line >> info.rd;
 
     if (!line) {
