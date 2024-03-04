@@ -117,12 +117,12 @@ namespace {
       case instr_or       :
       case instr_and      : return type_computational;
 
-      case instr_lts:
-      case instr_ltu:
-      case instr_ges:
-      case instr_geu:
-      case instr_eq :
-      case instr_ne : return type_branch;
+      case instr_blt :
+      case instr_bltu:
+      case instr_bge :
+      case instr_bgeu:
+      case instr_beq :
+      case instr_bne : return type_branch;
 
       case instr_const    : return type_const;
       case instr_periphery: return type_periphery;
@@ -282,12 +282,12 @@ Decoder::Decoder() {
   str_instr_mapping["sra"      ] = instr_sra      ;
   str_instr_mapping["sll"      ] = instr_sll      ;
   str_instr_mapping["srl"      ] = instr_srl      ;
-  str_instr_mapping["blt"      ] = instr_lts      ;
-  str_instr_mapping["bltu"     ] = instr_ltu      ;
-  str_instr_mapping["bge"      ] = instr_ges      ;
-  str_instr_mapping["bgeu"     ] = instr_geu      ;
-  str_instr_mapping["beq"      ] = instr_eq       ;
-  str_instr_mapping["bne"      ] = instr_ne       ;
+  str_instr_mapping["blt"      ] = instr_blt      ;
+  str_instr_mapping["bltu"     ] = instr_bltu     ;
+  str_instr_mapping["bge"      ] = instr_bge      ;
+  str_instr_mapping["bgeu"     ] = instr_bgeu     ;
+  str_instr_mapping["beq"      ] = instr_beq      ;
+  str_instr_mapping["bne"      ] = instr_bne      ;
   str_instr_mapping["slts"     ] = instr_slts     ;
   str_instr_mapping["sltu"     ] = instr_sltu     ;
   str_instr_mapping["const"    ] = instr_const    ;
@@ -435,7 +435,7 @@ TEST_CASE("Decoder decode", "[DECODE]") {
     const std::string line{"bne 20, 0, 19"};
     Decoder decoder{};
     Decoder::Instruction_info info{decoder.decode(line)};
-    REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_ne);
+    REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_bne);
     REQUIRE(info.type        == Decoder::Instruction_type::type_branch);
     REQUIRE(info.rs1         == 20);
     REQUIRE(info.rs2         ==  0);
