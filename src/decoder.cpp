@@ -142,43 +142,41 @@ namespace {
     }
   }
 
+  constexpr void extract_reg(const std::string &reg_name, auto &reg, std::istream &line) {
+    char x;
+    line >> x;
+    line >> reg;
+
+    if (!line || (x != 'x')) {
+      throw Errors::Syntax_error("stringstream failed to extract a token. Expected " + reg_name);
+    }
+  }
+
+  constexpr void extract_imm(const std::string &imm_name, auto &imm, std::istream &line) {
+    line >> imm;
+
+    if (!line) {
+      throw Errors::Syntax_error("stringstream failed to extract a token. Expected " + imm_name);
+    }
+  }
+
   constexpr void decode_computational(Decoder::Instruction_info &info,
       std::istream &line, char sep = ',') {
-    line >> info.rd;
-
-    if (!line) {
-      throw Errors::Syntax_error("stringstream failed to extract a token. Expected rd");
-    }
+    extract_reg("rd", info.rd, line);
 
     skip_sep(line, sep);
-    line >> info.rs1;
-
-    if (!line) {
-      throw Errors::Syntax_error("stringstream failed to extract a token. Expected rs1");
-    }
+    extract_reg("rs1", info.rs1, line);
 
     skip_sep(line, sep);
-    line >> info.rs2;
-
-    if (!line) {
-      throw Errors::Syntax_error("stringstream failed to extract a token. Expected rs2");
-    }
+    extract_reg("rs2", info.rs2, line);
   }
 
   constexpr void decode_const(Decoder::Instruction_info &info,
       std::istream &line, char sep = ',') {
-    line >> info.rd;
-
-    if (!line) {
-      throw Errors::Syntax_error("stringstream failed to extract a token. Expected rd");
-    }
+    extract_reg("rd", info.rd, line);
 
     skip_sep(line, sep);
-    line >> info.imm;
-
-    if (!line) {
-      throw Errors::Syntax_error("stringstream failed to extract a token. Expected rs1");
-    }
+    extract_imm("imm", info.imm, line);
   }
 
   constexpr void decode_jump(Decoder::Instruction_info &info, std::istream &line) {
@@ -190,35 +188,19 @@ namespace {
   }
 
   constexpr void decode_periphery(Decoder::Instruction_info &info, std::istream &line) {
-    line >> info.rd;
-
-    if (!line) {
-      throw Errors::Syntax_error("stringstream failed to extract a token. Expected rd");
-    }
+    extract_reg("rd", info.rd, line);
   }
 
   constexpr void decode_branch(Decoder::Instruction_info &info, std::istream &line, char sep = ',') {
-    line >> info.rs1;
-
-    if (!line) {
-      throw Errors::Syntax_error("stringstream failed to extract a token. Expected rs1");
-    }
+    extract_reg("rs1", info.rs1, line);
 
     skip_sep(line, sep);
 
-    line >> info.rs2;
-
-    if (!line) {
-      throw Errors::Syntax_error("stringstream failed to extract a token. Expected rs2");
-    }
+    extract_reg("rs2", info.rs2, line);
 
     skip_sep(line, sep);
 
-    line >> info.imm;
-
-    if (!line) {
-      throw Errors::Syntax_error("stringstream failed to extract a token. Expected imm");
-    }
+    extract_imm("imm", info.imm, line);
   }
 
   constexpr void decode_instruction_type(Decoder::Instruction_info &info, std::istream &line) {
@@ -328,8 +310,8 @@ Decoder::Instruction_info Decoder::decode(const std::string &line) const {
 
 TEST_CASE("Decoder decode computational", "[DECODE_COMPUTATIONAL]") {
 
-  SECTION("1, 2, 3") {
-    const std::string args{"1, 2, 3"};
+  SECTION("x1, x2, x3") {
+    const std::string args{"x1, x2, x3"};
     Decoder::Instruction_info info{};
     std::stringstream         ss  {args};
 
@@ -339,8 +321,8 @@ TEST_CASE("Decoder decode computational", "[DECODE_COMPUTATIONAL]") {
     REQUIRE(info.rs2 == 3);
   }
 
-  SECTION("1,    2,3") {
-    const std::string args{"1,    2,3"};
+  SECTION("x1,    x2,x3") {
+    const std::string args{"x1,    x2,x3"};
     Decoder::Instruction_info info{};
     std::stringstream         ss  {args};
 
@@ -350,16 +332,16 @@ TEST_CASE("Decoder decode computational", "[DECODE_COMPUTATIONAL]") {
     REQUIRE(info.rs2 == 3);
   }
 
-  SECTION("1   2,3") {
-    const std::string args{"1   2,3"};
+  SECTION("x1   x2,x3") {
+    const std::string args{"x1   x2,x3"};
     Decoder::Instruction_info info{};
     std::stringstream         ss  {args};
 
     REQUIRE_THROWS_AS(decode_computational(info, ss), Errors::Syntax_error);
   }
 
-  SECTION("1, 2") {
-    const std::string args{"1, 2"};
+  SECTION("x1, x2") {
+    const std::string args{"x1, x2"};
     Decoder::Instruction_info info{};
     std::stringstream         ss  {args};
 
@@ -396,8 +378,8 @@ TEST_CASE("Decoder check_extraneous_input", "[CHECK_EXTRANEOUS_INPUT]") {
 }
 
 TEST_CASE("Decoder decode", "[DECODE]") {
-  SECTION("add 1, 2, 3") {
-    const std::string line{"add 1, 2, 3"};
+  SECTION("add x1, x2, x3") {
+    const std::string line{"add x1, x2, x3"};
     Decoder decoder{};
     Decoder::Instruction_info info{decoder.decode(line)};
     REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_add);
@@ -407,13 +389,13 @@ TEST_CASE("Decoder decode", "[DECODE]") {
     REQUIRE(info.rs2         == 3);
   }
 
-  SECTION("addi 1, 2, 3") {
+  SECTION("addi x1, x2, x3") {
     const std::string line{"addi 1, 2, 3"};
     Decoder decoder{};
     REQUIRE_THROWS_AS(decoder.decode(line), Errors::Illegal_instruction);
   }
 
-  SECTION("j 3, 1, 2, 3") {
+  SECTION("j x3, x1, x2, x3") {
     const std::string line{"j 3, 1, 2, 3"};
     Decoder decoder{};
     REQUIRE_THROWS_AS(decoder.decode(line), Errors::Syntax_error);
@@ -428,8 +410,8 @@ TEST_CASE("Decoder decode", "[DECODE]") {
     REQUIRE(info.imm         == 20);
   }
 
-  SECTION("bne 20, 0, 19") {
-    const std::string line{"bne 20, 0, 19"};
+  SECTION("bne x20, x0, 19") {
+    const std::string line{"bne x20, x0, 19"};
     Decoder decoder{};
     Decoder::Instruction_info info{decoder.decode(line)};
     REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_bne);
@@ -439,8 +421,8 @@ TEST_CASE("Decoder decode", "[DECODE]") {
     REQUIRE(info.imm         == 19);
   }
 
-  SECTION("periphery 20") {
-    const std::string line{"periphery 20"};
+  SECTION("periphery x20") {
+    const std::string line{"periphery x20"};
     Decoder decoder{};
     Decoder::Instruction_info info{decoder.decode(line)};
     REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_periphery);
@@ -448,8 +430,8 @@ TEST_CASE("Decoder decode", "[DECODE]") {
     REQUIRE(info.rd          == 20);
   }
 
-  SECTION("const 3, 300") {
-    const std::string line{"const 3, 300"};
+  SECTION("const x3, 300") {
+    const std::string line{"const x3, 300"};
     Decoder decoder{};
     Decoder::Instruction_info info{decoder.decode(line)};
     REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_const);
@@ -458,8 +440,8 @@ TEST_CASE("Decoder decode", "[DECODE]") {
     REQUIRE(info.imm         == 300);
   }
 
-  SECTION("const 300, 300") {
-    const std::string line{"const 300, 300"};
+  SECTION("const x300, 300") {
+    const std::string line{"const x300, 300"};
     Decoder decoder{};
     REQUIRE_THROWS_AS(decoder.decode(line), Errors::Range_error);
   }
