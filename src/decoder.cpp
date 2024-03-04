@@ -127,7 +127,8 @@ namespace {
       case instr_const    : return type_const;
       case instr_periphery: return type_periphery;
       case instr_jump     : return type_jump;
-      case instr_number_  :
+
+      default:
         assert("instr_number_ is not valid instruction");
         return type_none;
     }
