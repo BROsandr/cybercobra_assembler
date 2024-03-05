@@ -11,6 +11,9 @@
 #include <algorithm>
 #include <iostream>
 
+using Line      = std::vector<std::string>;
+using Line_addr = std::vector<Line>::iterator;
+
 inline std::vector<std::string> line2tokens(const std::string &line) {
   std::stringstream ss{line};
   std::vector<std::string> tokens{};
@@ -23,46 +26,105 @@ inline std::vector<std::string> line2tokens(const std::string &line) {
   return tokens;
 }
 
-inline std::size_t calculate_abs_addr(std::map<std::size_t, std::string>::const_iterator labels_it,
-    std::map<std::size_t, std::string>::const_iterator end_it) {
-  while ((next(labels_it) != end_it) &&
-      (next(labels_it)->first == (labels_it->first + 1))) {
-    ++labels_it;
+inline Line_addr calculate_next_instr_addr(Line_addr label_it,
+    Line_addr labels_end_it, Line_addr lines_end_it) {
+  Line_addr current_line{label_it + 1};
+  while (true) {
+    // if a line is a label then skip
+    if ((next(label_it) != labels_end_it) &&
+        (next(label_it) == current_line)) {
+      ++label_it;
+      ++current_line;
+    } else if (current_line == lines_end_it) {
+      throw Errors::Syntax_error{"Invalid label's position"};
+    } else if (current_line->empty()) {
+      ++current_line;
+    } else {
+      return current_line;
+    }
+  }
+}
+
+inline std::map<Line_addr, std::string_view> find_labels(std::vector<Line> &token_lines) {
+  std::map<Line_addr, std::string_view> labels;
+  for (Line_addr it = token_lines.begin(); it != token_lines.end(); ++it) {
+    if ((*it).empty() || (*it)[0].empty()) continue;
+    const std::string &first_token{(*it)[0]};
+    if (first_token.back() == ':') {
+      if ((*it).size() > 1) {
+        throw Errors::Syntax_error("Extraneous tokens other than a label");
+      }
+      labels[it] = first_token.substr(0, first_token.length() - 1);
+    }
   }
 
-  return labels_it->first + 1;
+  return labels;
+}
+
+inline std::vector<Line_addr> remove_labels(std::vector<Line> &lines,
+    const std::map<Line_addr, std::string_view> &labels) {
+  std::vector<Line_addr> removed_labels{};
+  for (Line_addr it = lines.begin(); it != lines.end(); ++it) {
+    if (labels.find(it) == labels.end()) {
+      removed_labels.push_back(it);
+    }
+  }
+
+  return removed_labels;
+}
+
+inline std::vector<Line_addr> remove_empty_lines(std::vector<Line_addr> &&lines) {
+  std::vector<Line_addr> removed_labels{};
+  for (auto it = lines.begin(); it != lines.end(); ++it) {
+    if ((*it)->empty()) {
+      lines.erase(it);
+    }
+  }
+
+  return lines;
 }
 
 inline void handle_labels(std::vector<std::vector<std::string>> &token_lines) {
-  std::map<std::size_t, std::string> labels;
-  for (std::size_t i{0}; i < token_lines.size(); ++i) {
-    if (token_lines[i].empty() || token_lines[i][0].empty()) continue;
-    const std::string &first_token{token_lines[i][0]};
-    if (first_token.back() == ':') {
-      if (token_lines[i].size() > 1) {
-        throw Errors::Syntax_error("Extraneous tokens other than a label");
-      }
-      labels[i] = first_token.substr(0, first_token.length() - 1);
-    }
+  auto labels = find_labels(token_lines);
+  std::map<Line_addr, std::string_view> addr_labels{};
+
+  for (auto &label : labels) {
+    auto addr = calculate_next_instr_addr(label.first,
+        labels.rbegin()->first, token_lines.end());
+    addr_labels[addr] = label.second;
   }
 
-  for (auto it = labels.begin(); it != labels.end(); ++it) {
-    for (std::size_t i{0}; i < token_lines.size(); ++i) {
-      std::vector<std::string> &currrent_line{token_lines[i]};
-      auto token = std::find(currrent_line.begin(), currrent_line.end(), it->second);
-      if (token != currrent_line.end()) {
-        const std::size_t label_addr{calculate_abs_addr(it, labels.end())};
-        auto curr_it = token_lines.begin() + static_cast<ptrdiff_t>(i);
-        auto label_it = token_lines.begin() + static_cast<ptrdiff_t>(label_addr);
-        const ptrdiff_t empty_num{count_if(
-            min(curr_it, label_it), max(curr_it, label_it), [](auto el){return el.empty();})
-        };
-        ptrdiff_t diff{static_cast<ptrdiff_t>(label_addr) - static_cast<ptrdiff_t>(i)};
-        diff += (diff < 0) ? (empty_num + 1) : -empty_num;
-        *token = std::to_string(diff);
+  auto clear_lines = remove_empty_lines(remove_labels(token_lines, labels));
+
+  for (Line_addr &line_addr : clear_lines) {
+    for (auto &label : addr_labels) {
+      Line::iterator token = std::find(line_addr->begin(), line_addr->end(), label.second);
+      auto used_label = label;
+      if (token != line_addr->end()) {
+        Line_addr label_addr{used_label.first};
+        *token = std::to_string(line_addr - label_addr);
       }
     }
+
   }
+
+  // for (auto it = labels.begin(); it != labels.end(); ++it) {
+  //   for (std::size_t i{0}; i < token_lines.size(); ++i) {
+  //     std::vector<std::string> &currrent_line{token_lines[i]};
+  //     auto token = std::find(currrent_line.begin(), currrent_line.end(), it->second);
+  //     if (token != currrent_line.end()) {
+  //       const std::size_t label_addr{calculate_abs_addr(it, labels.end())};
+  //       auto curr_it = token_lines.begin() + static_cast<ptrdiff_t>(i);
+  //       auto label_it = token_lines.begin() + static_cast<ptrdiff_t>(label_addr);
+  //       const ptrdiff_t empty_num{count_if(
+  //           min(curr_it, label_it), max(curr_it, label_it), [](auto el){return el.empty();})
+  //       };
+  //       ptrdiff_t diff{static_cast<ptrdiff_t>(label_addr) - static_cast<ptrdiff_t>(i)};
+  //       diff += (diff < 0) ? (empty_num + 1) : -empty_num;
+  //       *token = std::to_string(diff);
+  //     }
+  //   }
+  // }
 }
 
 inline void write_lines(const std::vector<std::vector<std::string>> token_lines) {
