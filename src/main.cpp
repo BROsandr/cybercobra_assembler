@@ -16,7 +16,7 @@ int main() {
   auto &writer = std::cout;
   try {
     while (getline(reader, line)) {
-      Decoder::Instruction_info instr_info{decoder.decode(line)};
+      Decoder::Instruction_info instr_info{decoder.decode(std::move(line))};
       Uxlen instruction{encoder.encode(instr_info)};
       writer << std::bitset<32>(instruction) << "\n";
     }
