@@ -5,7 +5,7 @@
 #include <cassert>
 
 namespace {
-  constexpr Uxlen encode_const(Decoder::Instruction_info instr_info) {
+  constexpr Uxlen encode_li(Decoder::Instruction_info instr_info) {
     Uxlen instr{0};
     instr = instr_info.imm;
     instr = (instr << 5) | instr_info.rd;
@@ -101,7 +101,7 @@ namespace {
 
 Uxlen Encoder::encode(Decoder::Instruction_info instr_info) {
   switch (instr_info.type) {
-    case Decoder::Instruction_type::type_const        : return encode_const        (instr_info);
+    case Decoder::Instruction_type::type_li           : return encode_li           (instr_info);
     case Decoder::Instruction_type::type_branch       : return encode_branch       (instr_info);
     case Decoder::Instruction_type::type_computational: return encode_computational(instr_info);
     case Decoder::Instruction_type::type_jump         : return encode_jump         (instr_info);

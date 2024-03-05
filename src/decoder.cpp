@@ -32,7 +32,7 @@ namespace {
       case instr_beq :
       case instr_bne : return type_branch;
 
-      case instr_const    : return type_const;
+      case instr_li       : return type_li;
       case instr_periphery: return type_periphery;
       case instr_jump     : return type_jump;
 
@@ -79,7 +79,7 @@ namespace {
     extract_reg("rs2", info.rs2, line);
   }
 
-  constexpr void decode_const(Decoder::Instruction_info &info,
+  constexpr void decode_li(Decoder::Instruction_info &info,
       std::istream &line, char sep = ',') {
     extract_reg("rd", info.rd, line);
 
@@ -116,7 +116,7 @@ namespace {
     using enum Decoder::Instruction_type;
     switch (info.type) {
       case type_computational: decode_computational(info, line); break;
-      case type_const        : decode_const        (info, line); break;
+      case type_li           : decode_li           (info, line); break;
       case type_jump         : decode_jump         (info, line); break;
       case type_periphery    : decode_periphery    (info, line); break;
       case type_branch       : decode_branch       (info, line); break;
@@ -142,7 +142,7 @@ namespace {
         min_max_check(info.imm, 0, 0b11111111, "imm");
         break;
 
-      case Decoder::Instruction_type::type_const :
+      case Decoder::Instruction_type::type_li    :
         min_max_check(info.imm, 0, 0b11111111111111111111111, "imm");
         break;
 
@@ -177,7 +177,7 @@ const std::map<std::string, Decoder::Concrete_instruction> Decoder::str_instr_ma
   {"bne"      , Decoder::Concrete_instruction::instr_bne      },
   {"slts"     , Decoder::Concrete_instruction::instr_slts     },
   {"sltu"     , Decoder::Concrete_instruction::instr_sltu     },
-  {"const"    , Decoder::Concrete_instruction::instr_const    },
+  {"li"       , Decoder::Concrete_instruction::instr_li       },
   {"periphery", Decoder::Concrete_instruction::instr_periphery},
   {"j"        , Decoder::Concrete_instruction::instr_jump     },
 };
@@ -338,18 +338,18 @@ TEST_CASE("Decoder decode", "[DECODE]") {
     REQUIRE(info.rd          == 20);
   }
 
-  SECTION("const x3, 300") {
-    const std::string line{"const x3, 300"};
+  SECTION("li x3, 300") {
+    const std::string line{"li x3, 300"};
     Decoder decoder{};
     Decoder::Instruction_info info{decoder.decode(line)};
-    REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_const);
-    REQUIRE(info.type        == Decoder::Instruction_type::type_const);
+    REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_li);
+    REQUIRE(info.type        == Decoder::Instruction_type::type_li);
     REQUIRE(info.rd          == 3);
     REQUIRE(info.imm         == 300);
   }
 
-  SECTION("const x300, 300") {
-    const std::string line{"const x300, 300"};
+  SECTION("li x300, 300") {
+    const std::string line{"li x300, 300"};
     Decoder decoder{};
     REQUIRE_THROWS_AS(decoder.decode(line), Errors::Range_error);
   }

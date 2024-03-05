@@ -2,8 +2,6 @@
 
 #include "cobra.hpp"
 
-#include <cstddef>
-
 #include <string>
 #include <map>
 
@@ -26,7 +24,7 @@ class Decoder {
         instr_bne      ,
         instr_slts     ,
         instr_sltu     ,
-        instr_const    ,
+        instr_li       ,
         instr_periphery,
         instr_jump     ,
 
@@ -36,7 +34,7 @@ class Decoder {
     enum class Instruction_type {
       type_computational,
       type_branch       ,
-      type_const        ,
+      type_li           ,
       type_periphery    ,
       type_jump         ,
     };
