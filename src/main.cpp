@@ -12,7 +12,7 @@ int main() {
 
   std::string line{};
 
-  auto &reader = Reader::get_instance();
+  Reader reader{std::cin};
   auto &writer = std::cout;
   try {
     while (getline(reader, line)) {

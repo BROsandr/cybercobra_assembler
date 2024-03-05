@@ -1,39 +1,32 @@
 #pragma once
 
 #include <string>
-#include <iostream>
-#include <optional>
+#include <istream>
 
 class Reader {
   public:
-    friend Reader &get_line(Reader &input, std::string &str) {
-      std::getline(std::cin, str);
-      if (input.m_current_line_number) {
-        ++*input.m_current_line_number;
-      } else {
-        *input.m_current_line_number = 0;
-      }
-      return input;
-    }
+    friend Reader &getline(Reader &input, std::string &str);
 
-    constexpr std::size_t get_current_line_number() const {
-      return *m_current_line_number;
-    }
+    constexpr std::size_t get_current_line_number() const { return m_current_line_number; }
 
+    constexpr Reader(std::istream &is) : m_is{is} {}
     Reader(const Reader& ) = delete;
     Reader(      Reader&&) = delete;
 
     Reader& operator=(const Reader& ) = delete;
     Reader& operator=(      Reader&&) = delete;
-
-    static Reader& get_instance() {
-      static Reader instance{};
-      return instance;
-    }
-
-  private:
-    Reader()  = default;
+    Reader()  = delete;
     ~Reader() = default;
 
-    std::optional<std::size_t> m_current_line_number{};
+    constexpr operator bool() const { return static_cast<bool>(m_is); }
+
+  private:
+    std::istream &m_is;
+    std::size_t m_current_line_number{static_cast<size_t>(-1)};
 };
+
+inline Reader &getline(Reader &input, std::string &str) {
+  getline(input.m_is, str);
+  ++input.m_current_line_number;
+  return input;
+}
