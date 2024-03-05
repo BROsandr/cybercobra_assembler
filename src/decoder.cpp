@@ -1,10 +1,11 @@
 #include "decoder.hpp"
 
 #include "exception.hpp"
+#include "cobra_algos.hpp"
 
 #include <cassert>
-
 #include <cstddef>
+
 #include <iostream>
 #include <sstream>
 
@@ -139,11 +140,11 @@ namespace {
     switch (info.type) {
       case Decoder::Instruction_type::type_jump  :
       case Decoder::Instruction_type::type_branch:
-        min_max_check(info.imm, 0, 0b11111111, "imm");
+        min_max_check(static_cast<Uxlen>(info.imm) & make_mask<Uxlen>(8), 0, 0b11111111, "imm");
         break;
 
       case Decoder::Instruction_type::type_li    :
-        min_max_check(info.imm, 0, 0b11111111111111111111111, "imm");
+        min_max_check(static_cast<Uxlen>(info.imm) & make_mask<Uxlen>(23), 0, 0b11111111111111111111111, "imm");
         break;
 
       default: ;
@@ -364,6 +365,16 @@ TEST_CASE("Decoder decode", "[DECODE]") {
     const std::string line{"li x300, 300"};
     Decoder decoder{};
     REQUIRE_THROWS_AS(decoder.decode(line), Errors::Range_error);
+  }
+
+  SECTION("li x3, -1") {
+    const std::string line{"li x3, -1"};
+    Decoder decoder{};
+    Decoder::Instruction_info info{decoder.decode(line)};
+    REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_li);
+    REQUIRE(info.type        == Decoder::Instruction_type::type_li);
+    REQUIRE(info.rd          ==  3);
+    REQUIRE(info.imm         == -1);
   }
 }
 #endif

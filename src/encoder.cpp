@@ -1,13 +1,14 @@
 #include "encoder.hpp"
 
 #include "decoder.hpp"
+#include "cobra_algos.hpp"
 
 #include <cassert>
 
 namespace {
   constexpr Uxlen encode_li(Decoder::Instruction_info instr_info) {
     Uxlen instr{0};
-    instr = instr_info.imm;
+    instr = static_cast<Uxlen>(instr_info.imm) & make_mask<Uxlen>(23);
     instr = (instr << 5) | instr_info.rd;
 
     return instr;
@@ -84,7 +85,7 @@ namespace {
   constexpr Uxlen encode_jump(Decoder::Instruction_info instr_info) {
     Uxlen instr{0};
     instr = 1;
-    instr = (instr << 26) | instr_info.imm;
+    instr = (instr << 26) | (static_cast<Uxlen>(instr_info.imm) & make_mask<Uxlen>(8));
     instr = instr << 5;
 
     return instr;
