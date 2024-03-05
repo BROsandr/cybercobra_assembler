@@ -25,7 +25,7 @@ class Decoder {
         instr_slts     ,
         instr_sltu     ,
         instr_li       ,
-        instr_periphery,
+        instr_in       ,
         instr_jump     ,
 
         instr_number_
@@ -35,7 +35,7 @@ class Decoder {
       type_computational,
       type_branch       ,
       type_li           ,
-      type_periphery    ,
+      type_in           ,
       type_jump         ,
     };
 

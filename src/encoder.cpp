@@ -90,7 +90,7 @@ namespace {
     return instr;
   }
 
-  constexpr Uxlen encode_periphery(Decoder::Instruction_info instr_info) {
+  constexpr Uxlen encode_in(Decoder::Instruction_info instr_info) {
     Uxlen instr{0};
     instr = 1;
     instr = (instr << 29) | instr_info.rd;
@@ -105,7 +105,7 @@ Uxlen Encoder::encode(Decoder::Instruction_info instr_info) {
     case Decoder::Instruction_type::type_branch       : return encode_branch       (instr_info);
     case Decoder::Instruction_type::type_computational: return encode_computational(instr_info);
     case Decoder::Instruction_type::type_jump         : return encode_jump         (instr_info);
-    case Decoder::Instruction_type::type_periphery    : return encode_periphery    (instr_info);
+    case Decoder::Instruction_type::type_in           : return encode_in           (instr_info);
     default:
       assert(0 && "Unexcpected type");
       return 0xb1bab0ba;

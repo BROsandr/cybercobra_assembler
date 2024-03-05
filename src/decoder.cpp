@@ -32,9 +32,9 @@ namespace {
       case instr_beq :
       case instr_bne : return type_branch;
 
-      case instr_li       : return type_li;
-      case instr_periphery: return type_periphery;
-      case instr_jump     : return type_jump;
+      case instr_li  : return type_li;
+      case instr_in  : return type_in;
+      case instr_jump: return type_jump;
 
       default:
         assert(0 && "instr_number_ is not valid instruction");
@@ -95,7 +95,7 @@ namespace {
     }
   }
 
-  constexpr void decode_periphery(Decoder::Instruction_info &info, std::istream &line) {
+  constexpr void decode_in(Decoder::Instruction_info &info, std::istream &line) {
     extract_reg("rd", info.rd, line);
   }
 
@@ -118,7 +118,7 @@ namespace {
       case type_computational: decode_computational(info, line); break;
       case type_li           : decode_li           (info, line); break;
       case type_jump         : decode_jump         (info, line); break;
-      case type_periphery    : decode_periphery    (info, line); break;
+      case type_in           : decode_in           (info, line); break;
       case type_branch       : decode_branch       (info, line); break;
       default   : assert(0 && "Unexpected info.type");
     }
@@ -178,7 +178,7 @@ const std::map<std::string, Decoder::Concrete_instruction> Decoder::str_instr_ma
   {"slts"     , Decoder::Concrete_instruction::instr_slts     },
   {"sltu"     , Decoder::Concrete_instruction::instr_sltu     },
   {"li"       , Decoder::Concrete_instruction::instr_li       },
-  {"periphery", Decoder::Concrete_instruction::instr_periphery},
+  {"in"       , Decoder::Concrete_instruction::instr_in       },
   {"j"        , Decoder::Concrete_instruction::instr_jump     },
 };
 
@@ -329,12 +329,12 @@ TEST_CASE("Decoder decode", "[DECODE]") {
     REQUIRE(info.imm         == 19);
   }
 
-  SECTION("periphery x20") {
-    const std::string line{"periphery x20"};
+  SECTION("in x20") {
+    const std::string line{"in x20"};
     Decoder decoder{};
     Decoder::Instruction_info info{decoder.decode(line)};
-    REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_periphery);
-    REQUIRE(info.type        == Decoder::Instruction_type::type_periphery);
+    REQUIRE(info.instruction == Decoder::Concrete_instruction::instr_in);
+    REQUIRE(info.type        == Decoder::Instruction_type::type_in);
     REQUIRE(info.rd          == 20);
   }
 
