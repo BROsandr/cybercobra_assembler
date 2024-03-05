@@ -21,7 +21,7 @@ int main() {
       writer << std::bitset<32>(instruction) << "\n";
     }
   } catch (const Errors::Error &exc) {
-    std::cerr << std::to_string(reader.get_current_line_number()) + " :\n"
+    std::cerr << "ERROR at line " << std::to_string(reader.get_current_line_number()) + " :\n"
               << "  " << exc.what();
   }
 
