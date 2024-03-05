@@ -152,7 +152,7 @@ namespace {
 
   void check_extraneous_input(std::istream &&line) {
     char c{};
-    while (line.get(c)) {
+    while (line.get(c) && (c != '\n')) {
       if (!std::isspace(c)) {
         throw Errors::Syntax_error{"Etraneous_input other than \\n"};
       }
