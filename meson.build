@@ -68,13 +68,13 @@ foreach file : preprocessor_src_unit_test_files
   test(file, exe)
 endforeach
 
-preprocessor_path_src = []
-preprocessor_src_all_files = [
-    'preprocessor.cpp',
-]
-foreach file : preprocessor_src_all_files
-  preprocessor_path_src += src_dir / file
-endforeach
+# preprocessor_path_src = []
+# preprocessor_src_all_files = [
+#     'preprocessor.cpp',
+# ]
+# foreach file : preprocessor_src_all_files
+#   preprocessor_path_src += src_dir / file
+# endforeach
 
-preprocessor_name = 'cybercobra_preprocessor'
-executable(preprocessor_name, sources : preprocessor_path_src, include_directories : incdir)
+# preprocessor_name = 'cybercobra_preprocessor'
+# executable(preprocessor_name, sources : preprocessor_path_src, include_directories : incdir)
