@@ -16,11 +16,5 @@ int main() {
 
   handle_labels(token_lines);
 
-  auto &writer = std::cout;
-
-  for (auto &line_el : token_lines) {
-
-    std::copy(line_el.begin(), line_el.end(), std::ostream_iterator<std::string>{writer, " "});
-    std::cout << "\n";
-  }
+  write_lines(token_lines);
 }

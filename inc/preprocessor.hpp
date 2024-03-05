@@ -52,3 +52,13 @@ inline void handle_labels(std::vector<std::vector<std::string>> &token_lines) {
     }
   }
 }
+
+inline void write_lines(const std::vector<std::vector<std::string>> token_lines) {
+  auto &writer = std::cout;
+
+  for (auto &line_el : token_lines) {
+
+    std::copy(line_el.begin(), line_el.end(), std::ostream_iterator<std::string>{writer, " "});
+    std::cout << "\n";
+  }
+}
