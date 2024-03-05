@@ -8,6 +8,7 @@
 #include <sstream>
 #include <map>
 #include <algorithm>
+#include <iostream>
 
 inline std::vector<std::string> line2tokens(const std::string &line) {
   std::stringstream ss{line};
@@ -32,6 +33,7 @@ inline std::size_t calculate_abs_addr(std::map<std::size_t, std::string>::const_
 inline void handle_labels(std::vector<std::vector<std::string>> &token_lines) {
   std::map<std::size_t, std::string> labels;
   for (std::size_t i{0}; i < token_lines.size(); ++i) {
+    if (token_lines[i].empty() || token_lines[i][0].empty()) continue;
     const std::string &first_token{token_lines[i][0]};
     if (first_token.back() == ':') {
       if (token_lines[i].size() > 1) {
