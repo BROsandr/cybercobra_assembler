@@ -2,6 +2,7 @@
 
 #include "exception.hpp"
 
+#include <cstddef>
 #include <iterator>
 #include <vector>
 #include <string>
@@ -24,9 +25,11 @@ inline std::vector<std::string> line2tokens(const std::string &line) {
 
 inline std::size_t calculate_abs_addr(std::map<std::size_t, std::string>::const_iterator labels_it,
     std::map<std::size_t, std::string>::const_iterator end_it) {
-  while ((next(labels_it) != end_it) && (next(labels_it)->first == (labels_it->first + 1))) {
+  while ((next(labels_it) != end_it) &&
+      (next(labels_it)->first == (labels_it->first + 1))) {
     ++labels_it;
   }
+
   return labels_it->first + 1;
 }
 
@@ -49,7 +52,14 @@ inline void handle_labels(std::vector<std::vector<std::string>> &token_lines) {
       auto token = std::find(currrent_line.begin(), currrent_line.end(), it->second);
       if (token != currrent_line.end()) {
         const std::size_t label_addr{calculate_abs_addr(it, labels.end())};
-        *token = std::to_string(static_cast<ptrdiff_t>(label_addr) - static_cast<ptrdiff_t>(i));
+        auto curr_it = token_lines.begin() + static_cast<ptrdiff_t>(i);
+        auto label_it = token_lines.begin() + static_cast<ptrdiff_t>(label_addr);
+        const ptrdiff_t empty_num{count_if(
+            min(curr_it, label_it), max(curr_it, label_it), [](auto el){return el.empty();})
+        };
+        ptrdiff_t diff{static_cast<ptrdiff_t>(label_addr) - static_cast<ptrdiff_t>(i)};
+        diff += (diff < 0) ? (empty_num + 1) : -empty_num;
+        *token = std::to_string(diff);
       }
     }
   }
