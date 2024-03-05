@@ -148,4 +148,21 @@ TEST_CASE("Decoder encode computational", "[ENCODE_JUMP]") {
     REQUIRE(encoder.encode(instr_info) == instr);
   }
 }
+
+TEST_CASE("Decoder encode LI", "[ENCODE_LI]") {
+
+  Encoder encoder{};
+
+  SECTION("li x1, -2") {
+    // 0 0 00 const WA
+    const Uxlen instr{0b00001111111111111111111111000001};
+    Decoder::Instruction_info instr_info{};
+    instr_info.imm         = -2;
+    instr_info.rd          = 1;
+    instr_info.instruction = Decoder::Concrete_instruction::instr_li;
+    instr_info.type        = Decoder::Instruction_type::type_li;
+
+    REQUIRE(encoder.encode(instr_info) == instr);
+  }
+}
 #endif
