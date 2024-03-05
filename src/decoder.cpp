@@ -281,7 +281,19 @@ TEST_CASE("Decoder check_extraneous_input", "[CHECK_EXTRANEOUS_INPUT]") {
   }
 
   SECTION("  ab  ") {
-    REQUIRE_NOTHROW(check_extraneous_input(std::stringstream{""}));
+    REQUIRE_THROWS_AS(check_extraneous_input(std::stringstream{"  ab  "}), Errors::Syntax_error);
+  }
+
+  SECTION("  \n fdf  ") {
+    REQUIRE_NOTHROW(check_extraneous_input(std::stringstream{"  \n fdf  "}));
+  }
+
+  SECTION("  \n") {
+    REQUIRE_NOTHROW(check_extraneous_input(std::stringstream{"  \n"}));
+  }
+
+  SECTION("x1 cc  \n") {
+    REQUIRE_THROWS_AS(check_extraneous_input(std::stringstream{"x1 cc  \n"}), Errors::Syntax_error);
   }
 }
 
