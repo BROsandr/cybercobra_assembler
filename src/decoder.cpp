@@ -376,5 +376,17 @@ TEST_CASE("Decoder decode", "[DECODE]") {
     REQUIRE(info.rd          ==  3);
     REQUIRE(info.imm         == -1);
   }
+
+  SECTION("space") {
+    const std::string line{" "};
+    Decoder decoder{};
+    REQUIRE_THROWS(decoder.decode(line));
+  }
+
+  SECTION("empty line") {
+    const std::string line{""};
+    Decoder decoder{};
+    REQUIRE_THROWS(decoder.decode(line));
+  }
 }
 #endif
