@@ -82,6 +82,19 @@ TEST_CASE("Preprocessor remove_labels", "[REMOVE_LABELS]") {
   }
 }
 
+TEST_CASE("Preprocessor empty_lines", "[EMPTY_LINES]") {
+  SECTION("1, , , instr") {
+    std::vector<Line> file{Line{"test1:"}, Line{}, Line{}, Line{"instr"}};
+
+    std::vector<Line_addr> lines{};
+    for (auto it = file.begin(); it != file.end(); ++it) {
+      lines.push_back(it);
+    }
+
+    REQUIRE(remove_empty_lines(lines) == std::vector{file.begin(), file.end()-1});
+  }
+}
+
 TEST_CASE("Preprocessor calculate_next_instr_addr", "[CALCULATE_NEXT_INSTR_ADDR]") {
   SECTION("1, 2, instr") {
     std::vector<Line> lines{Line{"test1:"}, Line{"test2:"}, Line{"instr"}};

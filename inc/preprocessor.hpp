@@ -73,15 +73,13 @@ inline std::vector<Line_addr> remove_labels(std::vector<Line> &lines,
   return removed_labels;
 }
 
-inline std::vector<Line_addr> remove_empty_lines(std::vector<Line_addr> &&lines) {
-  std::vector<Line_addr> removed_labels{};
-  for (auto it = lines.begin(); it != lines.end(); ++it) {
-    if ((*it)->empty()) {
-      lines.erase(it);
-    }
-  }
+inline std::vector<Line_addr> remove_empty_lines(std::vector<Line_addr> lines) {
+  auto it = std::remove_if(lines.begin(), lines.end(), [](auto el){
+      return (*el).empty();
+  });
+  std::vector<Line_addr> clear_lines{lines.begin(), it};
 
-  return lines;
+  return clear_lines;
 }
 
 inline void handle_labels(std::vector<std::vector<std::string>> &token_lines) {
