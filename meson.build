@@ -42,7 +42,7 @@ foreach file : compiler_src_unit_test_files
 endforeach
 
 compiler_src_all_files = compiler_src_unit_test_files + [
-    'compiler.cpp',
+    'main.cpp',
 ]
 
 compiler_path_src = []

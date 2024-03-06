@@ -1,29 +1,27 @@
+#pragma once
+
 #include "decoder.hpp"
 #include "encoder.hpp"
 #include "exception.hpp"
 #include "reader.hpp"
 
-#include <iostream>
 #include <bitset>
 
-int main() {
+template <typename I, typename W, typename E>
+void compile(I &&in_stream, W &&out_stream, E &&error_stream) {
   Decoder decoder{};
   Encoder encoder{};
 
   std::string line{};
 
-  Reader reader{std::cin};
-  auto &writer = std::cout;
   try {
-    while (getline(reader, line)) {
+    while (getline(std::forward<I>(in_stream), line)) {
       Decoder::Instruction_info instr_info{decoder.decode(std::move(line))};
       Uxlen instruction{encoder.encode(instr_info)};
-      writer << std::bitset<32>(instruction) << "\n";
+      out_stream << std::bitset<32>(instruction) << "\n";
     }
   } catch (const Errors::Error &exc) {
-    std::cerr << "ERROR at line " << std::to_string(reader.get_current_line_number()) + " :\n"
-              << "  " << exc.what();
+    error_stream << "ERROR at line " << std::to_string(in_stream.get_current_line_number()) + " :\n"
+                 << "  " << exc.what();
   }
-
-  return 0;
 }
