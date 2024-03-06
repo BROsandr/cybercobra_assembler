@@ -54,18 +54,23 @@ endforeach
 compiler_name = 'cybercobra_compiler'
 executable(compiler_name, sources : compiler_path_src, include_directories : incdir)
 
-preprocessor_src_unit_test_files = [
-    'test_preprocessor.cpp',
-]
+src_standalone_test_files = {
+    'test_preprocessor.cpp' : [],
+    'test_compiler.cpp' : [
+        'src'  / 'encoder.cpp',
+        'src'  / 'decoder.cpp',
+    ],
+}
 
-test_dir = 'test'
+standalone_test_dir = 'test'
 
-foreach file : preprocessor_src_unit_test_files
-  path = test_dir / file
-  exe = executable(file, sources : path,
+foreach test_file, other_files : src_standalone_test_files
+  test_file_path = standalone_test_dir / test_file
+  all_src_path = [test_file_path] + other_files
+  exe = executable(test_file, sources : all_src_path,
       include_directories : incdir,
       dependencies : catch_dep)
-  test(file, exe)
+  test(test_file, exe)
 endforeach
 
 # preprocessor_path_src = []
