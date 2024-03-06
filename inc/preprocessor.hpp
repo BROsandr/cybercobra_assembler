@@ -26,13 +26,13 @@ inline std::vector<std::string> line2tokens(const std::string &line) {
   return tokens;
 }
 
-inline Line_addr calculate_next_instr_addr(Line_addr label_it,
-    Line_addr labels_end_it, Line_addr lines_end_it) {
-  Line_addr current_line{label_it + 1};
+inline Line_addr calculate_next_instr_addr(std::map<Line_addr, std::string_view>::const_iterator label_it,
+    std::map<Line_addr, std::string_view>::const_iterator labels_end_it, Line_addr lines_end_it) {
+  Line_addr current_line{label_it->first + 1};
   while (true) {
     // if a line is a label then skip
     if ((next(label_it) != labels_end_it) &&
-        (next(label_it) == current_line)) {
+        (next(label_it)->first == current_line)) {
       ++label_it;
       ++current_line;
     } else if (current_line == lines_end_it) {
@@ -88,10 +88,10 @@ inline void handle_labels(std::vector<std::vector<std::string>> &token_lines) {
   auto labels = find_labels(token_lines);
   std::map<Line_addr, std::string_view> addr_labels{};
 
-  for (auto &label : labels) {
-    auto addr = calculate_next_instr_addr(label.first,
-        labels.rbegin()->first, token_lines.end());
-    addr_labels[addr] = label.second;
+  for (auto it = labels.begin(); it != labels.end(); ++it) {
+    auto addr = calculate_next_instr_addr(it,
+        labels.end(), token_lines.end());
+    addr_labels[addr] = it->second;
   }
 
   auto clear_lines = remove_empty_lines(remove_labels(token_lines, labels));

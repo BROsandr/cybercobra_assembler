@@ -71,22 +71,14 @@ TEST_CASE("Preprocessor handle_labels", "[HANDLE_LABELS]") {
   }
 }
 
-TEST_CASE("Preprocessor calculate_abs_addr", "[CALCULATE_ABS_ADDR]") {
-  SECTION("1, 2, 4") {
-    std::map<std::size_t, std::string> labels{{1, ""}, {2, ""}, {4, ""}};
-    std::vector<std::vector<std::string>> lines{};
-    for ([[maybe_unused]]auto &el: labels) {
-      lines.push_back({{" "}});
-    }
-    REQUIRE(calculate_abs_addr(labels.begin(), labels.end()) == 3);
-  }
-
-  SECTION("0, 2, 3, 4, 18") {
-    std::map<std::size_t, std::string> labels{{0, ""}, {2, ""}, {3, ""}, {4, ""}, {18, ""}};
-    std::vector<std::vector<std::string>> lines{};
-    for ([[maybe_unused]]auto &el: labels) {
-      lines.push_back({{" "}});
-    }
-    REQUIRE(calculate_abs_addr(next(labels.begin()), labels.end()) == 5);
+TEST_CASE("Preprocessor calculate_next_instr_addr", "[CALCULATE_NEXT_INSTR_ADDR]") {
+  SECTION("1, 2, instr") {
+    std::vector<Line> lines{Line{"test1:"}, Line{"test2:"}, Line{"instr"}};
+    std::map<Line_addr, std::string_view> labels{
+        {lines.begin()  , "test1"},
+        {lines.begin()+1, "test2"}
+    };
+    REQUIRE(calculate_next_instr_addr(labels.begin(),
+        labels.end(), lines.end()) == lines.end() - 1);
   }
 }
