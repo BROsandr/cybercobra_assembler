@@ -93,6 +93,28 @@ TEST_CASE("Preprocessor empty_lines", "[EMPTY_LINES]") {
 
     REQUIRE(remove_empty_lines(lines) == std::vector{file.begin(), file.end()-1});
   }
+
+  SECTION("1, "", "", instr") {
+    std::vector<Line> file{Line{"test1:"}, Line{""}, Line{""}, Line{"instr"}};
+
+    std::vector<Line_addr> lines{};
+    for (auto it = file.begin(); it != file.end(); ++it) {
+      lines.push_back(it);
+    }
+
+    REQUIRE(remove_empty_lines(lines) == std::vector{file.begin(), file.end()-1});
+  }
+
+  SECTION("1, ' \n', ' ', instr") {
+    std::vector<Line> file{Line{"test1:"}, Line{" \n"}, Line{" "}, Line{"instr"}};
+
+    std::vector<Line_addr> lines{};
+    for (auto it = file.begin(); it != file.end(); ++it) {
+      lines.push_back(it);
+    }
+
+    REQUIRE(remove_empty_lines(lines) == std::vector{file.begin(), file.end()-1});
+  }
 }
 
 TEST_CASE("Preprocessor calculate_next_instr_addr", "[CALCULATE_NEXT_INSTR_ADDR]") {

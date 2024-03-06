@@ -2,7 +2,8 @@
 
 #include "exception.hpp"
 
-#include <cstddef>
+#include <cctype>
+
 #include <iterator>
 #include <vector>
 #include <string>
@@ -74,8 +75,11 @@ inline std::vector<Line_addr> remove_labels(std::vector<Line> &lines,
 }
 
 inline std::vector<Line_addr> remove_empty_lines(std::vector<Line_addr> lines) {
-  auto it = std::remove_if(lines.begin(), lines.end(), [](auto el){
-      return (*el).empty();
+  auto it = std::remove_if(lines.begin(), lines.end(), [](Line_addr el){
+      return (*el).empty() ||
+          ((el->size() == 1) &&
+          std::all_of(el->front().begin(), el->front().end(),
+              [](unsigned char c){ return std::isspace(c); }));
   });
   std::vector<Line_addr> clear_lines{lines.begin(), it};
 
