@@ -18,6 +18,7 @@ void compile(I &&in_stream, W &&out_stream, E &&error_stream) {
 
   try {
     while (getline(reader, line)) {
+      if (line.empty()) continue;
       Decoder::Instruction_info instr_info{decoder.decode(std::move(line))};
       Uxlen instruction{encoder.encode(instr_info)};
       out_stream << std::bitset<32>(instruction) << "\n";

@@ -9,12 +9,13 @@ TEST_CASE("Compiler compile", "[COMPILE]") {
     std::stringstream in{
         R"""(add x1, x2, x3
 
-        add x1, x3, x3)"""
+        add x1, x2, x3)"""
     };
 
     std::stringstream out{};
+    std::stringstream error{};
 
-    compile(in, out, out);
+    compile(in, out, error);
 
     std::string line{};
     out >> line;
@@ -22,7 +23,8 @@ TEST_CASE("Compiler compile", "[COMPILE]") {
     line = {};
     out >> line;
     REQUIRE(line == "00010000000010000110000000000001");
-    out.get();
+    line = {};
+    out >> line;
     REQUIRE(!out);
   }
 }
