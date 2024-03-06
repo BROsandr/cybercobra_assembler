@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main() {
-  Reader reader{std::cin};
+  auto &reader = std::cin;
   auto &writer = std::cout;
 
   compile(reader, writer, writer);
