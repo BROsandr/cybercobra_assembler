@@ -7,4 +7,6 @@ test2:
   j   test2
 
 test3:
-  bge x3, x31, test1
+  bge x3, x31, test1 # hello
+
+# goodbye

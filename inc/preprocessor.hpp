@@ -147,6 +147,14 @@ inline void write_lines(const std::vector<std::vector<std::string>> token_lines)
   }
 }
 
+inline void handle_comments(std::vector<Line> &token_lines) {
+  for (Line &line : token_lines) {
+    line.erase(std::find_if(line.begin(), line.end(),
+        [](std::string_view str){ return str.starts_with("#"); }), line.end());
+  }
+}
+
 inline void preprocess(std::vector<Line> &token_lines) {
+  handle_comments(token_lines);
   handle_labels(token_lines);
 }
