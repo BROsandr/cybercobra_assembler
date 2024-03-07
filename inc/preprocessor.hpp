@@ -84,7 +84,7 @@ inline std::vector<Line_addr> remove_empty_lines(std::vector<Line_addr> lines) {
   return clear_lines;
 }
 
-inline void handle_labels(std::vector<std::vector<std::string>> &token_lines) {
+inline void handle_labels(std::vector<Line> &token_lines) {
   auto labels = find_labels(token_lines);
   Labels addr_labels{};
 
@@ -94,7 +94,9 @@ inline void handle_labels(std::vector<std::vector<std::string>> &token_lines) {
     addr_labels[it->first] = addr;
   }
 
-  auto clear_lines = remove_empty_lines(remove_labels(token_lines, labels));
+  auto no_labels = remove_labels(token_lines, labels);
+
+  auto clear_lines = remove_empty_lines(no_labels);
 
   for (Line_addr &line_addr : clear_lines) {
     for (auto &label : addr_labels) {
@@ -109,6 +111,13 @@ inline void handle_labels(std::vector<std::vector<std::string>> &token_lines) {
 
   }
 
+  for (auto it = token_lines.begin(); it != token_lines.end(); ++it) {
+    if (std::find_if(no_labels.begin(), no_labels.end(),
+            [it](Line_addr line_addr){ return line_addr == it; }) ==
+        no_labels.end()) {
+      *it = Line{""};
+    }
+  }
   // for (auto it = labels.begin(); it != labels.end(); ++it) {
   //   for (std::size_t i{0}; i < token_lines.size(); ++i) {
   //     std::vector<std::string> &currrent_line{token_lines[i]};

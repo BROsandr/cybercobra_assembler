@@ -36,11 +36,12 @@ TEST_CASE("Preprocessor handle_labels", "[HANDLE_LABELS]") {
         {"add", "x1", "x2", "x3"},
     };
 
-    auto token_lines_copy = token_lines;
+    handle_labels(token_lines);
 
-    handle_labels(token_lines_copy);
-
-    REQUIRE(token_lines_copy == token_lines);
+    REQUIRE(token_lines == std::vector<std::vector<std::string>>{
+        {""},
+        {"add", "x1", "x2", "x3"}
+    });
   }
 
   SECTION(
@@ -60,7 +61,7 @@ TEST_CASE("Preprocessor handle_labels", "[HANDLE_LABELS]") {
     handle_labels(token_lines);
 
     REQUIRE(token_lines == std::vector<std::vector<std::string>>{
-        {"test1:"},
+        {""},
         {""},
         {"add", "x1", "x2", "x3"},
         {"j", "-1"},
@@ -97,15 +98,15 @@ TEST_CASE("Preprocessor handle_labels", "[HANDLE_LABELS]") {
     handle_labels(token_lines);
 
     REQUIRE(token_lines == std::vector<std::vector<std::string>>{
-        {"test1:"},
-        {"test2:"},
+        {""},
+        {""},
         {"li", "x1", "3"},
         {"add", "x1", "x2", "x3"},
         {"j", "20"},
         {"j", "-3"},
         {"j", "-4"},
         {""},
-        {"test3:"},
+        {""},
         {"bge", "x3", "x31", "-5"},
     });
   }
