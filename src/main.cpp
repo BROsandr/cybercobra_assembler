@@ -40,7 +40,7 @@ int main() {
       try {
         out_stream << std::bitset<32>(compiler.compile_str(str)) << "\n";
       } catch (const Errors::Error &exc) {
-        error_stream << "ERROR. Compile at line " << std::to_string(current_line_it - token_lines.begin()) + " :\n"
+        error_stream << "ERROR. Compile at line " << std::to_string(current_line_it - token_lines.begin() + 1) + " :\n"
             << "  " << "instr after preprocessor: " << str << "\n"
             << "  " << "what: " << exc.what();
         break;
