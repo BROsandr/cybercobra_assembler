@@ -124,4 +124,18 @@ TEST_CASE("Preprocessor calculate_next_instr_addr", "[CALCULATE_NEXT_INSTR_ADDR]
     REQUIRE(calculate_next_instr_addr(labels.begin(),
         labels.end(), lines.end()) == lines.end() - 1);
   }
+
+  SECTION("calculate_next_instr_addr 2") {
+    std::vector<Line> lines{
+        Line{"test1:"},
+        Line{""},
+        Line{"add", "x1", "x2", "x3"},
+        Line{"j", "test1"},
+    };
+    std::map<Line_addr, std::string_view> labels{
+        {lines.begin()  , "test1"},
+    };
+    REQUIRE(calculate_next_instr_addr(labels.begin(),
+        labels.end(), lines.end()) == lines.end() - 2);
+  }
 }
