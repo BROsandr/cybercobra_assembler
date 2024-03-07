@@ -66,16 +66,90 @@ TEST_CASE("Preprocessor handle_labels", "[HANDLE_LABELS]") {
         {"j", "-1"},
     });
   }
+
+  SECTION(
+      R"""(
+      test1:
+      test2:
+        li  x1, 3
+        add x1, x2, x3
+        j   20
+        j   test1
+        j   test2
+
+      test3:
+        bge x3, x31, test1
+      )"""
+  ) {
+    std::vector<std::vector<std::string>> token_lines{
+        {"test1:"},
+        {"test2:"},
+        {"li", "x1", "3"},
+        {"add", "x1", "x2", "x3"},
+        {"j", "20"},
+        {"j", "test1"},
+        {"j", "test2"},
+        {""},
+        {"test3:"},
+        {"bge", "x3", "x31", "test1"},
+    };
+
+    handle_labels(token_lines);
+
+    REQUIRE(token_lines == std::vector<std::vector<std::string>>{
+        {"test1:"},
+        {"test2:"},
+        {"li", "x1", "3"},
+        {"add", "x1", "x2", "x3"},
+        {"j", "20"},
+        {"j", "-3"},
+        {"j", "-4"},
+        {""},
+        {"test3:"},
+        {"bge", "x3", "x31", "-5"},
+    });
+  }
 }
 
 TEST_CASE("Preprocessor remove_labels", "[REMOVE_LABELS]") {
   SECTION("1, 2, instr") {
     std::vector<Line> lines{Line{"test1:"}, Line{"test2:"}, Line{"instr"}};
-    std::map<Line_addr, std::string_view> labels{
-        {lines.begin()  , "test1"},
-        {lines.begin()+1, "test2"}
+    Labels labels{
+        {"test1", lines.begin()},
+        {"test2", lines.begin()+1}
     };
     REQUIRE(remove_labels(lines,labels) == std::vector{lines.end()-1});
+  }
+
+  SECTION("2") {
+    std::vector<std::vector<std::string>> token_lines{
+        {"test1:"},
+        {"test2:"},
+        {"li", "x1", "3"},
+        {"add", "x1", "x2", "x3"},
+        {"j", "20"},
+        {"j", "test1"},
+        {"j", "test2"},
+        {""},
+        {"test3:"},
+        {"bge", "x3", "x31", "test1"},
+    };
+
+    Labels labels{
+        {"test1", token_lines.begin()},
+        {"test2", token_lines.begin()+1},
+        {"test3", token_lines.end()-2},
+    };
+
+    REQUIRE(remove_labels(token_lines, labels) == std::vector<Line_addr>{
+        token_lines.begin()+2,
+        token_lines.begin()+3,
+        token_lines.begin()+4,
+        token_lines.begin()+5,
+        token_lines.begin()+6,
+        token_lines.begin()+7,
+        token_lines.end()-1,
+    });
   }
 }
 
@@ -112,14 +186,48 @@ TEST_CASE("Preprocessor empty_lines", "[EMPTY_LINES]") {
 
     REQUIRE(remove_empty_lines(lines) == std::vector{file.begin(), file.end()-1});
   }
+
+  SECTION("2") {
+    std::vector<std::vector<std::string>> token_lines{
+        {"test1:"},
+        {"test2:"},
+        {"li", "x1", "3"},
+        {"add", "x1", "x2", "x3"},
+        {"j", "20"},
+        {"j", "test1"},
+        {"j", "test2"},
+        {""},
+        {"test3:"},
+        {"bge", "x3", "x31", "test1"},
+    };
+
+    std::vector<Line_addr> lines{
+        token_lines.begin()+2,
+        token_lines.begin()+3,
+        token_lines.begin()+4,
+        token_lines.begin()+5,
+        token_lines.begin()+6,
+        token_lines.begin()+7,
+        token_lines.end()-1,
+    };
+
+    REQUIRE(remove_empty_lines(lines) == std::vector<Line_addr>{
+        token_lines.begin()+2,
+        token_lines.begin()+3,
+        token_lines.begin()+4,
+        token_lines.begin()+5,
+        token_lines.begin()+6,
+        token_lines.end()-1,
+    });
+  }
 }
 
 TEST_CASE("Preprocessor calculate_next_instr_addr", "[CALCULATE_NEXT_INSTR_ADDR]") {
   SECTION("1, 2, instr") {
     std::vector<Line> lines{Line{"test1:"}, Line{"test2:"}, Line{"instr"}};
-    std::map<Line_addr, std::string_view> labels{
-        {lines.begin()  , "test1"},
-        {lines.begin()+1, "test2"}
+    Labels labels{
+        {"test1", lines.begin()  },
+        {"test2", lines.begin()+1}
     };
     REQUIRE(calculate_next_instr_addr(labels.begin(),
         labels.end(), lines.end()) == lines.end() - 1);
@@ -132,8 +240,8 @@ TEST_CASE("Preprocessor calculate_next_instr_addr", "[CALCULATE_NEXT_INSTR_ADDR]
         Line{"add", "x1", "x2", "x3"},
         Line{"j", "test1"},
     };
-    std::map<Line_addr, std::string_view> labels{
-        {lines.begin()  , "test1"},
+    Labels labels{
+        {"test1", lines.begin()},
     };
     REQUIRE(calculate_next_instr_addr(labels.begin(),
         labels.end(), lines.end()) == lines.end() - 2);
