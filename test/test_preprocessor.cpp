@@ -31,19 +31,16 @@ TEST_CASE("Preprocessor handle_labels", "[HANDLE_LABELS]") {
         add x1, x2, x3
       )"""
   ) {
-    std::stringstream ss{R"""(test1:
-        add x1, x2, x3
-      )"""};
-    Reader reader{ss};
-    std::string line{};
-    std::vector<std::vector<std::string>> token_lines{};
-    while (getline(reader, line)) {
-      token_lines.push_back(line2tokens(std::move(line)));
-    }
+    std::vector<std::vector<std::string>> token_lines{
+        {"test1:"},
+        {"add", "x1", "x2", "x3"},
+    };
 
-    handle_labels(token_lines);
+    auto token_lines_copy = token_lines;
 
-    write_lines(token_lines);
+    handle_labels(token_lines_copy);
+
+    REQUIRE(token_lines_copy == token_lines);
   }
 
   SECTION(
@@ -53,21 +50,21 @@ TEST_CASE("Preprocessor handle_labels", "[HANDLE_LABELS]") {
         j  test1
       )"""
   ) {
-    std::stringstream ss{R"""(test1:
-
-        add x1, x2, x3
-        j  test1
-      )"""};
-    Reader reader{ss};
-    std::string line{};
-    std::vector<std::vector<std::string>> token_lines{};
-    while (getline(reader, line)) {
-      token_lines.push_back(line2tokens(std::move(line)));
-    }
+    std::vector<std::vector<std::string>> token_lines{
+        {"test1:"},
+        {""},
+        {"add", "x1", "x2", "x3"},
+        {"j", "test1"},
+    };
 
     handle_labels(token_lines);
 
-    write_lines(token_lines);
+    REQUIRE(token_lines == std::vector<std::vector<std::string>>{
+        {"test1:"},
+        {""},
+        {"add", "x1", "x2", "x3"},
+        {"j", "-1"},
+    });
   }
 }
 
