@@ -1,8 +1,7 @@
 #pragma once
 
 #include "exception.hpp"
-
-#include <cctype>
+#include "cobra_algos.hpp"
 
 #include <iterator>
 #include <vector>
@@ -48,7 +47,7 @@ inline Line_addr calculate_next_instr_addr(std::map<Line_addr, std::string_view>
 inline std::map<Line_addr, std::string_view> find_labels(std::vector<Line> &token_lines) {
   std::map<Line_addr, std::string_view> labels;
   for (Line_addr it = token_lines.begin(); it != token_lines.end(); ++it) {
-    if ((*it).empty() || (*it)[0].empty()) continue;
+    if (is_empty_line(*it)) continue;
     const std::string &first_token{(*it)[0]};
     if (first_token.back() == ':') {
       if ((*it).size() > 1) {
@@ -75,10 +74,7 @@ inline std::vector<Line_addr> remove_labels(std::vector<Line> &lines,
 
 inline std::vector<Line_addr> remove_empty_lines(std::vector<Line_addr> lines) {
   auto it = std::remove_if(lines.begin(), lines.end(), [](Line_addr el){
-      return (*el).empty() ||
-          ((el->size() == 1) &&
-          std::all_of(el->front().begin(), el->front().end(),
-              [](unsigned char c){ return std::isspace(c); }));
+      return is_empty_line(*el);
   });
   std::vector<Line_addr> clear_lines{lines.begin(), it};
 
