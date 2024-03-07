@@ -331,4 +331,21 @@ TEST_CASE("Preprocessor calculate_next_instr_addr", "[CALCULATE_NEXT_INSTR_ADDR]
     REQUIRE(calculate_next_instr_addr(labels.begin(),
         labels.end(), lines.end()) == lines.end() - 2);
   }
+
+  SECTION("calculate_next_instr_addr 3") {
+    std::vector<Line> lines{
+      {"bltu_back:"},
+      {""},
+      {"blt_forth:"},
+      {"j", "blt_back"},
+    };
+    Labels labels{
+        std::pair<std::string_view, Line_addr>{"bltu_back", lines.begin()},
+        std::pair<std::string_view, Line_addr>{"blt_forth", lines.begin()+2},
+    };
+    REQUIRE(calculate_next_instr_addr(labels.begin(),
+        labels.end(), lines.end()) == lines.end() - 1);
+    REQUIRE(calculate_next_instr_addr(next(labels.begin()),
+        labels.end(), lines.end()) == lines.end() - 1);
+  }
 }
