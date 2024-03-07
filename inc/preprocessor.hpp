@@ -13,7 +13,7 @@
 
 using Line      = std::vector<std::string>;
 using Line_addr = std::vector<Line>::iterator;
-using Labels    = std::map<std::string_view, Line_addr>;
+using Labels    = std::vector<std::pair<std::string_view, Line_addr>>;
 
 inline std::vector<std::string> line2tokens(const std::string &line) {
   std::stringstream ss{line};
@@ -54,10 +54,10 @@ inline Labels find_labels(std::vector<Line> &token_lines) {
       std::string_view label{cbegin(first_token), cend(first_token) - 1};
       if ((*it).size() > 1) {
         throw Errors::Syntax_error("Extraneous tokens other than a label");
-      } else if (labels.contains(label)) {
+      } else if (std::find_if(labels.begin(), labels.end(), [&label](auto &p){ return p.first == label; }) != labels.end()) {
         throw Errors::Syntax_error{"Label==" + std::string{label} + " already exists"};
       }
-      labels[label] = it;
+      labels.emplace_back(label, it);
     }
   }
 
@@ -91,7 +91,7 @@ inline void handle_labels(std::vector<Line> &token_lines) {
   for (auto it = labels.begin(); it != labels.end(); ++it) {
     auto addr = calculate_next_instr_addr(it,
         labels.end(), token_lines.end());
-    addr_labels[it->first] = addr;
+    addr_labels.emplace_back(it->first, addr);
   }
 
   auto no_labels = remove_labels(token_lines, labels);
