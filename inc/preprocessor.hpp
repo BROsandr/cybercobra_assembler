@@ -137,3 +137,7 @@ inline void write_lines(const std::vector<std::vector<std::string>> token_lines)
     std::cout << "\n";
   }
 }
+
+inline void preprocess(std::vector<Line> &token_lines) {
+  handle_labels(token_lines);
+}
