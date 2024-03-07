@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+#include <bitset>
 
 int main() {
   Reader reader{std::cin};
