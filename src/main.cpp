@@ -1,5 +1,6 @@
 #include "cobra_algos.hpp"
 #include "compiler.hpp"
+#include "exception.hpp"
 #include "reader.hpp"
 #include "preprocessor.hpp"
 
@@ -19,9 +20,10 @@ int main() {
 
   try {
     preprocess(token_lines);
-  } catch (const Errors::Error &exc) {
-    error_stream << "ERROR while preprocessing :\n"
-        << "  " << "what: " << exc.what();
+  } catch (const Errors::Syntax_error &exc) {
+    error_stream << "ERROR while preprocessing:\n"
+        << "  " << "Error type: Syntax error\n"
+        << "  " << "what: " << exc.what() << "\n";
   }
   auto &preprocessed = token_lines;
 
@@ -39,8 +41,21 @@ int main() {
 
       try {
         out_stream << std::bitset<32>(compiler.compile_str(str)) << "\n";
-      } catch (const Errors::Error &exc) {
-        error_stream << "ERROR. Compile at line " << std::to_string(current_line_it - token_lines.begin() + 1) + " :\n"
+      } catch (const Errors::Syntax_error &exc) {
+        error_stream << "ERROR. Compile at line " << std::to_string(current_line_it - token_lines.begin() + 1) + ":\n"
+            << "  " << "Error type: Syntax error\n"
+            << "  " << "instr after preprocessor: " << str << "\n"
+            << "  " << "what: " << exc.what();
+        break;
+      } catch (const Errors::Illegal_instruction &exc) {
+        error_stream << "ERROR. Compile at line " << std::to_string(current_line_it - token_lines.begin() + 1) + ":\n"
+            << "  " << "Error type: Illegal instruction: " << exc.m_instruction << "\n"
+            << "  " << "instr after preprocessor: " << str << "\n"
+            << "  " << "what: " << exc.what();
+        break;
+      } catch (const Errors::Range_error &exc) {
+        error_stream << "ERROR. Compile at line " << std::to_string(current_line_it - token_lines.begin() + 1) + ":\n"
+            << "  " << "Error type: Range error\n"
             << "  " << "instr after preprocessor: " << str << "\n"
             << "  " << "what: " << exc.what();
         break;
