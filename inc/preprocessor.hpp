@@ -18,12 +18,11 @@ using Line_addr = std::vector<Line>::iterator;
 inline std::vector<std::string> line2tokens(const std::string &line) {
   std::stringstream ss{line};
   std::vector<std::string> tokens{};
-  while (true) {
-    std::string token{};
-    ss >> token;
-    if (!ss) break;
-    tokens.push_back(std::move(token));
-  }
+
+  std::copy(std::istream_iterator<std::string>(ss),
+      std::istream_iterator<std::string>(),
+      std::back_inserter(tokens));
+
   return tokens;
 }
 
