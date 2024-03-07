@@ -36,7 +36,7 @@ inline Line_addr calculate_next_instr_addr(std::map<Line_addr, std::string_view>
       ++current_line;
     } else if (current_line == lines_end_it) {
       throw Errors::Syntax_error{"Invalid label's position"};
-    } else if (current_line->empty()) {
+    } else if (is_empty_line(*current_line)) {
       ++current_line;
     } else {
       return current_line;
@@ -53,7 +53,7 @@ inline std::map<Line_addr, std::string_view> find_labels(std::vector<Line> &toke
       if ((*it).size() > 1) {
         throw Errors::Syntax_error("Extraneous tokens other than a label");
       }
-      labels[it] = first_token.substr(0, first_token.length() - 1);
+      labels[it] = {cbegin(first_token), cend(first_token) - 1};
     }
   }
 
@@ -99,7 +99,7 @@ inline void handle_labels(std::vector<std::vector<std::string>> &token_lines) {
       auto used_label = label;
       if (token != line_addr->end()) {
         Line_addr label_addr{used_label.first};
-        *token = std::to_string(line_addr - label_addr);
+        *token = std::to_string(label_addr - line_addr);
       }
     }
 
