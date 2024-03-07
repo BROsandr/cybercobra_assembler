@@ -13,6 +13,7 @@
 
 using Line      = std::vector<std::string>;
 using Line_addr = std::vector<Line>::iterator;
+using Labels    = std::map<std::string_view, Line_addr>;
 
 inline std::vector<std::string> line2tokens(const std::string &line) {
   std::stringstream ss{line};
@@ -25,13 +26,13 @@ inline std::vector<std::string> line2tokens(const std::string &line) {
   return tokens;
 }
 
-inline Line_addr calculate_next_instr_addr(std::map<Line_addr, std::string_view>::const_iterator label_it,
-    std::map<Line_addr, std::string_view>::const_iterator labels_end_it, Line_addr lines_end_it) {
-  Line_addr current_line{label_it->first + 1};
+inline Line_addr calculate_next_instr_addr(Labels::const_iterator label_it,
+    Labels::const_iterator labels_end_it, Line_addr lines_end_it) {
+  Line_addr current_line{label_it->second + 1};
   while (true) {
     // if a line is a label then skip
     if ((next(label_it) != labels_end_it) &&
-        (next(label_it)->first == current_line)) {
+        (next(label_it)->second == current_line)) {
       ++label_it;
       ++current_line;
     } else if (current_line == lines_end_it) {
@@ -44,32 +45,34 @@ inline Line_addr calculate_next_instr_addr(std::map<Line_addr, std::string_view>
   }
 }
 
-inline std::map<Line_addr, std::string_view> find_labels(std::vector<Line> &token_lines) {
-  std::map<Line_addr, std::string_view> labels;
+inline Labels find_labels(std::vector<Line> &token_lines) {
+  Labels labels;
   for (Line_addr it = token_lines.begin(); it != token_lines.end(); ++it) {
     if (is_empty_line(*it)) continue;
     const std::string &first_token{(*it)[0]};
     if (first_token.back() == ':') {
+      std::string_view label{cbegin(first_token), cend(first_token) - 1};
       if ((*it).size() > 1) {
         throw Errors::Syntax_error("Extraneous tokens other than a label");
+      } else if (labels.contains(label)) {
+        throw Errors::Syntax_error{"Label==" + std::string{label} + " already exists"};
       }
-      labels[it] = {cbegin(first_token), cend(first_token) - 1};
+      labels[label] = it;
     }
   }
 
   return labels;
 }
 
-inline std::vector<Line_addr> remove_labels(std::vector<Line> &lines,
-    const std::map<Line_addr, std::string_view> &labels) {
-  std::vector<Line_addr> removed_labels{};
+inline std::vector<Line_addr> remove_labels(std::vector<Line> &lines, const Labels &labels) {
+  std::vector<Line_addr> not_labels{};
   for (Line_addr it = lines.begin(); it != lines.end(); ++it) {
-    if (labels.find(it) == labels.end()) {
-      removed_labels.push_back(it);
+    if (std::find_if(labels.begin(), labels.end(), [it](auto &label){ return label.second == it; }) == labels.end()) {
+      not_labels.push_back(it);
     }
   }
 
-  return removed_labels;
+  return not_labels;
 }
 
 inline std::vector<Line_addr> remove_empty_lines(std::vector<Line_addr> lines) {
@@ -83,23 +86,24 @@ inline std::vector<Line_addr> remove_empty_lines(std::vector<Line_addr> lines) {
 
 inline void handle_labels(std::vector<std::vector<std::string>> &token_lines) {
   auto labels = find_labels(token_lines);
-  std::map<Line_addr, std::string_view> addr_labels{};
+  Labels addr_labels{};
 
   for (auto it = labels.begin(); it != labels.end(); ++it) {
     auto addr = calculate_next_instr_addr(it,
         labels.end(), token_lines.end());
-    addr_labels[addr] = it->second;
+    addr_labels[it->first] = addr;
   }
 
   auto clear_lines = remove_empty_lines(remove_labels(token_lines, labels));
 
   for (Line_addr &line_addr : clear_lines) {
     for (auto &label : addr_labels) {
-      Line::iterator token = std::find(line_addr->begin(), line_addr->end(), label.second);
+      Line::iterator token = std::find(line_addr->begin(), line_addr->end(), label.first);
       auto used_label = label;
       if (token != line_addr->end()) {
-        Line_addr label_addr{used_label.first};
-        *token = std::to_string(label_addr - line_addr);
+        auto clear_label_addr = std::find(clear_lines.begin(), clear_lines.end(), used_label.second) - clear_lines.begin();
+        auto clear_line_addr = std::find(clear_lines.begin(), clear_lines.end(), line_addr) - clear_lines.begin();
+        *token = std::to_string(clear_label_addr - clear_line_addr);
       }
     }
 
