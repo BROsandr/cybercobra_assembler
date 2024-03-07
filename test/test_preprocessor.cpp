@@ -110,6 +110,53 @@ TEST_CASE("Preprocessor handle_labels", "[HANDLE_LABELS]") {
         {"bge", "x3", "x31", "-5"},
     });
   }
+
+  SECTION(
+      R"""(
+      j test1
+      test1:
+      j test1
+      )"""
+  ) {
+    std::vector<std::vector<std::string>> token_lines{
+        {"j", "test1"},
+        {"test1:"},
+        {"j", "test1"},
+    };
+
+    handle_labels(token_lines);
+
+    REQUIRE(token_lines == std::vector<std::vector<std::string>>{
+        {"j", "1"},
+        {""},
+        {"j", "0"},
+    });
+  }
+
+  SECTION(
+      R"""(
+      j test1
+      test1:
+      add x1, x2, x3
+      j test1
+      )"""
+  ) {
+    std::vector<std::vector<std::string>> token_lines{
+        {"j", "test1"},
+        {"test1:"},
+        {"add", "x1", "x2", "x3"},
+        {"j", "test1"},
+    };
+
+    handle_labels(token_lines);
+
+    REQUIRE(token_lines == std::vector<std::vector<std::string>>{
+        {"j", "1"},
+        {""},
+        {"add", "x1", "x2", "x3"},
+        {"j", "-1"},
+    });
+  }
 }
 
 TEST_CASE("Preprocessor remove_labels", "[REMOVE_LABELS]") {
