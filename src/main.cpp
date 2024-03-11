@@ -6,11 +6,11 @@
 
 #include <iostream>
 #include <vector>
-#include <bitset>
+#include <iomanip>
 
 namespace {
   void print_instr(std::ostream &os, Uxlen instr) {
-    os << std::bitset<32>(instr) << "\n";
+    os << std::setfill('0') << std::setw(8) << std::hex << instr << "\n";
   }
 }
 
