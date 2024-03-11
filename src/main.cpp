@@ -8,6 +8,12 @@
 #include <vector>
 #include <bitset>
 
+namespace {
+  void print_instr(std::ostream &os, Uxlen instr) {
+    os << std::bitset<32>(instr) << "\n";
+  }
+}
+
 int main() {
   auto &out_stream = std::cout;
   auto &error_stream = std::cerr;
@@ -40,7 +46,7 @@ int main() {
       getline(imploded, str);
 
       try {
-        out_stream << std::bitset<32>(compiler.compile_str(str)) << "\n";
+        print_instr(out_stream, compiler.compile_str(str));
       } catch (const Errors::Syntax_error &exc) {
         error_stream << "ERROR. Compile at line " << std::to_string(current_line_it - token_lines.begin() + 1) + ":\n"
             << "  " << "Error type: Syntax error\n"
