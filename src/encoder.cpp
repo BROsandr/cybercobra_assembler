@@ -66,7 +66,8 @@ namespace {
     instr = (instr << 7) | instr2alu_op(instr_info.instruction);
     instr = (instr << 5) | instr_info.rs1;
     instr = (instr << 5) | instr_info.rs2;
-    instr = (instr << 13);
+    instr = (instr << 8) | (static_cast<Uxlen>(instr_info.imm) & make_mask<Uxlen>(8));
+    instr = instr << 5;
 
     return instr;
   }
