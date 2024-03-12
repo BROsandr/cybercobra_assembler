@@ -1,14 +1,14 @@
 start:
   li   x1, 32
   out
-  add  x2, x2, x3 # 0
-  sub  x2, x2, x3 # 4
-  xor  x2, x2, x3 # 8
-  or   x2, x2, x3 # 12
-  and  x2, x2, x3 # 16
-  sra  x2, x2, x3 # 20
-  srl  x2, x2, x3 # 24
-  sll  x2, x2, x3 # 28
+  add  x2, x2, x3 # x2 = x2 + x3
+  sub  x2, x2, x3
+  xor  x2, x2, x3
+  or   x2, x2, x3
+  and  x2, x2, x3
+  sra  x2, x2, x3
+  srl  x2, x2, x3
+  sll  x2, x2, x3
 
   blt  x0, x1, blt_forth
   blt_back:
