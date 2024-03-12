@@ -154,7 +154,20 @@ inline void handle_comments(std::vector<Line> &token_lines) {
   }
 }
 
+inline void handle_pseudo_instr(std::vector<Line> &token_lines) {
+  for (Line &line : token_lines) {
+    if (!is_empty_line(line)) {
+      if (line[0] == "out") {
+        if (line.size() > 1) throw Errors::Syntax_error("Extraneous tokens after instr out");
+        line.clear();
+        line = {"add", "x0,", "x1,", "x0"};
+      }
+    }
+  }
+}
+
 inline void preprocess(std::vector<Line> &token_lines) {
   handle_comments(token_lines);
   handle_labels(token_lines);
+  handle_pseudo_instr(token_lines);
 }
