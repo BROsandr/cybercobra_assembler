@@ -1,4 +1,4 @@
-#include "compiler.hpp"
+#include "assembler.hpp"
 
 #include <iostream>
 #include <string>
@@ -7,7 +7,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch2/catch_test_macros.hpp"
 
-TEST_CASE("Compiler compile", "[COMPILE]") {
+TEST_CASE("Assembler assemble", "[ASSEMBLE]") {
 
   SECTION("empty line") {
     std::stringstream in{
@@ -17,9 +17,9 @@ TEST_CASE("Compiler compile", "[COMPILE]") {
 
     std::stringstream out{};
 
-    Compiler compiler{};
+    Assembler assembler{};
 
-    for (std::string str; getline(in, str);) out << compiler.compile_str(str) << "\n";
+    for (std::string str; getline(in, str);) out << assembler.assemble_str(str) << "\n";
 
     Uxlen line{};
     out >> line;
@@ -36,9 +36,9 @@ TEST_CASE("Compiler compile", "[COMPILE]") {
 
     std::string str{"blt x0, x1, 10"};
 
-    Compiler compiler{};
+    Assembler assembler{};
 
-    compiler.compile_str(str);
-    REQUIRE(compiler.compile_str(str) == 0b01001110000000000010000101000000);
+    assembler.assemble_str(str);
+    REQUIRE(assembler.assemble_str(str) == 0b01001110000000000010000101000000);
   }
 }

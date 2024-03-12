@@ -1,4 +1,4 @@
-project('cybercobra_compiler', 'cpp', default_options : ['cpp_std=c++23'])
+project('cybercobra_assembler', 'cpp', default_options : ['cpp_std=c++23'])
 
 incdir = [include_directories('inc')]
 catch_dep = dependency('catch2-with-main')
@@ -26,13 +26,13 @@ if (meson.get_compiler('cpp').get_id() in ['g++', 'gcc']) \
   ], language : ['cpp'])
 endif
 
-compiler_src_unit_test_files = [
+assembler_src_unit_test_files = [
     'decoder.cpp',
     'encoder.cpp',
 ]
 src_dir = 'src'
 
-foreach file : compiler_src_unit_test_files
+foreach file : assembler_src_unit_test_files
   path = src_dir / file
   exe = executable(file, sources : path,
       include_directories : incdir,
@@ -41,22 +41,22 @@ foreach file : compiler_src_unit_test_files
   test(file, exe)
 endforeach
 
-compiler_src_all_files = compiler_src_unit_test_files + [
+assembler_src_all_files = assembler_src_unit_test_files + [
     'main.cpp',
 ]
 
-compiler_path_src = []
+assembler_path_src = []
 
-foreach file : compiler_src_all_files
-  compiler_path_src += src_dir / file
+foreach file : assembler_src_all_files
+  assembler_path_src += src_dir / file
 endforeach
 
-compiler_name = 'cybercobra_compiler'
-executable(compiler_name, sources : compiler_path_src, include_directories : incdir)
+assembler_name = 'cybercobra_assembler'
+executable(assembler_name, sources : assembler_path_src, include_directories : incdir)
 
 src_standalone_test_files = {
     'test_preprocessor.cpp' : [],
-    'test_compiler.cpp' : [
+    'test_assembler.cpp' : [
         'src'  / 'encoder.cpp',
         'src'  / 'decoder.cpp',
     ],

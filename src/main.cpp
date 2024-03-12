@@ -1,5 +1,5 @@
 #include "cobra_algos.hpp"
-#include "compiler.hpp"
+#include "assembler.hpp"
 #include "exception.hpp"
 #include "reader.hpp"
 #include "preprocessor.hpp"
@@ -33,7 +33,7 @@ int main() {
   }
   auto &preprocessed = token_lines;
 
-  Compiler compiler{};
+  Assembler assembler{};
   for (auto current_line_it = preprocessed.begin(); current_line_it != preprocessed.end(); ++current_line_it) {
       if (is_empty_line(*current_line_it)) continue;
 
@@ -46,21 +46,21 @@ int main() {
       getline(imploded, str);
 
       try {
-        print_instr(out_stream, compiler.compile_str(str));
+        print_instr(out_stream, assembler.assemble_str(str));
       } catch (const Errors::Syntax_error &exc) {
-        error_stream << "ERROR. Compile at line " << std::to_string(current_line_it - token_lines.begin() + 1) + ":\n"
+        error_stream << "ERROR. Assemble at line " << std::to_string(current_line_it - token_lines.begin() + 1) + ":\n"
             << "  " << "Error type: Syntax error\n"
             << "  " << "instr after preprocessor: " << str << "\n"
             << "  " << "what: " << exc.what();
         break;
       } catch (const Errors::Illegal_instruction &exc) {
-        error_stream << "ERROR. Compile at line " << std::to_string(current_line_it - token_lines.begin() + 1) + ":\n"
+        error_stream << "ERROR. Assemble at line " << std::to_string(current_line_it - token_lines.begin() + 1) + ":\n"
             << "  " << "Error type: Illegal instruction: " << exc.m_instruction << "\n"
             << "  " << "instr after preprocessor: " << str << "\n"
             << "  " << "what: " << exc.what();
         break;
       } catch (const Errors::Range_error &exc) {
-        error_stream << "ERROR. Compile at line " << std::to_string(current_line_it - token_lines.begin() + 1) + ":\n"
+        error_stream << "ERROR. Assemble at line " << std::to_string(current_line_it - token_lines.begin() + 1) + ":\n"
             << "  " << "Error type: Range error\n"
             << "  " << "instr after preprocessor: " << str << "\n"
             << "  " << "what: " << exc.what();
